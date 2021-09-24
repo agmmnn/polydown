@@ -1,0 +1,10 @@
+__pycache__/
+.vscode
+_other
+downs
+folder
+build
+dist
+*.spec
+*.manifest
+*.egg-info
