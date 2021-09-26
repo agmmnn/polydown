@@ -2,7 +2,7 @@ import argparse
 import datetime
 from .cli import polycli
 
-__version__ = "0.2.1"
+__version__ = "0.2.2"
 
 ap = argparse.ArgumentParser()
 ap.add_argument(

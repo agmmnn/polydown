@@ -58,14 +58,11 @@ def polycli(args):
     #     exit()
 
     # ->🔒folder->
-    if os.path.exists(folder):
-        down_folder = folder + "\\" if folder[:-1] != "\\" else ""
-    else:
-        down_folder = os.getcwd() + "\\" + folder + "\\" if folder[:-1] != "\\" else ""
+    down_folder = os.path.abspath(folder) + ("/" if folder[-1:] != "/" else "")
+    if not os.path.exists(down_folder):
         try:
-            if os.path.exists(down_folder) == False:
-                os.mkdir(down_folder)
-                print("Folder not found, creating...")
+            os.mkdir(folder)
+            print(f'"{folder}" folder not found, creating...')
         except Exception as e:
             print("[red]Error: " + str(e))
             exit()

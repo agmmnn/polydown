@@ -15,9 +15,9 @@ def hash_check(
         file = down_folder + filename
     else:
         file = (
-            f"{subfolder}\\{asset}_{k}\\textures\\{filename}"
+            f"{subfolder}/{asset}_{k}/textures/{filename}"
             if not b
-            else f"{subfolder}\\{asset}_{k}\\{filename}"
+            else f"{subfolder}/{asset}_{k}/{filename}"
         )
 
     with open(file, "rb") as f:

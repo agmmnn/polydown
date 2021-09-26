@@ -33,22 +33,22 @@ class Downloader:
         self.k = k
         self.b = b
 
-        asset_k_folder = f"{subfolder}\\{asset}_{k}"
-        textures_folder = f"{subfolder}\\{asset}_{k}\\textures"
+        asset_k_folder = f"{subfolder}/{asset}_{k}"
+        textures_folder = f"{subfolder}/{asset}_{k}/textures"
 
         if type == "hdris":
             self.folder = down_folder + filename
         elif type == "models":
             self.folder = (
-                f"{textures_folder}\\{self.filename}"
+                f"{textures_folder}/{self.filename}"
                 if not b
-                else f"{asset_k_folder}\\{self.filename}"
+                else f"{asset_k_folder}/{self.filename}"
             )
         else:
             self.folder = (
-                f"{textures_folder}\\{self.filename}"
+                f"{textures_folder}/{self.filename}"
                 if not self.b
-                else f"{asset_k_folder}\\{self.filename}"
+                else f"{asset_k_folder}/{self.filename}"
             )
 
         if type == "hdris":
@@ -127,9 +127,9 @@ class Downloader:
         def save_file(url, filename):
             r = self.s.get(url)
             with open(
-                f"{self.subfolder}\\{filename}"
+                f"{self.subfolder}/{filename}"
                 if self.type != "hdris"
-                else f"{self.down_folder}\\{filename}",
+                else f"{self.down_folder}/{filename}",
                 "wb",
             ) as f:
                 f.write(r.content)

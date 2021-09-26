@@ -47,9 +47,9 @@ class Poly:
                 self.subfolder = self.down_folder + asset
                 if not os.path.exists(self.subfolder):
                     os.mkdir(self.subfolder)
-                if not os.path.exists(self.subfolder + f"\\{asset}_{k}"):
-                    os.mkdir(self.subfolder + f"\\{asset}_{k}")
-                    os.mkdir(self.subfolder + f"\\{asset}_{k}\\textures")
+                if not os.path.exists(self.subfolder + f"/{asset}_{k}"):
+                    os.mkdir(self.subfolder + f"/{asset}_{k}")
+                    os.mkdir(self.subfolder + f"/{asset}_{k}/textures")
 
             print(
                 theme.t_atitle
