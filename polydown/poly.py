@@ -41,7 +41,6 @@ class Poly:
             file_js = json.loads(self.s.get(files_url).content)
             k_list = [i for i in file_js["blend"]]
             k_list.sort(key=lambda fname: int(fname.split("k")[0]))
-            include = file_js["blend"]["1k"]["blend"]["include"]
 
             def create_subfolder(k):
                 # downfolder>ArmChair_01>ArmChair_01_1k>textures
@@ -61,6 +60,7 @@ class Poly:
 
             for k in k_list if self.down_sizes == [] else self.down_sizes:
                 if k in k_list:
+                    include = file_js["blend"][k]["blend"]["include"]
                     # download blend file
                     create_subfolder(k)
                     bl_url = file_js["blend"][k]["blend"]["url"]
