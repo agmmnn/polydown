@@ -57,6 +57,7 @@ $ polydown models -c decorative -f folder -s 1k
 -s, --sizes       size(s) of downloaded asset files. eg: 1k 2k 4k
 -o, --overwrite   overwrite if the files already exists. otherwise the current task will be skipped.
 -no, --noimgs     do not download 'preview, render, thumbnail...' images.
+-it, --iters      amount of iterations.
 -v, --version     show program's version number and exit
 ```
 
