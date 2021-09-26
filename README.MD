@@ -44,7 +44,7 @@ $ polydown models -c decorative -f folder -s 1k
 
 # download all "models" with "1k textures" in the "decorative" category into the "folder".
 ```
-![screenshot](https://user-images.githubusercontent.com/16024979/134737875-9e9a5daf-d6ed-414b-937f-54e67feb0025.png)
+![screenshot](https://user-images.githubusercontent.com/16024979/134804570-a01138e9-7fc0-4d22-b1b5-c52b3cfcf8a2.png)
 ![file structure](https://user-images.githubusercontent.com/16024979/134737874-cc04a42e-5855-4acb-9394-dac08352efee.png)
 
 # Arguments:
