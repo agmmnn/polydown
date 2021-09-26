@@ -1,61 +1,54 @@
-from rich import print as rprint
+from rich import print
 import os
 from .hash_check import hash_check
-
-# theme
-t_skipped_file = "[on dark_khaki]📁↳[/on dark_khaki][green]"
-t_down_file = "[grey11 on cyan]📁↓[/grey11 on cyan][cyan]"
-
-t_skipped_img = "[on dark_khaki]🖼️↳[/on dark_khaki][green]"
-t_down_img = "[grey11 on cyan]🖼️↓[/grey11 on cyan][cyan]"
-
-v = " (MD5✔)"
-x = " [red](MD5❌)"
-# /theme
+from . import theme
 
 
 class Downloader:
     def __init__(
         self,
         type,
+        asset,
         session,
         down_folder,
         subfolder,
         filename,
-        asset,
-        k,
-        url,
-        md5,
         overwrite,
-        b,
+        # --
+        url=None,
+        md5=None,
+        # --
+        k=None,
+        b=None,
     ):
         self.type = type
+        self.asset = asset
         self.s = session
         self.down_folder = down_folder
+        self.overwrite = overwrite
+        self.md5 = md5
+        self.url = url
         self.subfolder = subfolder
         self.filename = filename
-        self.asset = asset
         self.k = k
-        self.url = url
-        self.md5 = md5
-        self.overwrite = overwrite
         self.b = b
-        self.asset_k_folder = f"{subfolder}\\{asset}_{k}"
-        self.textures_folder = f"{subfolder}\\{asset}_{k}\\textures"
+
+        asset_k_folder = f"{subfolder}\\{asset}_{k}"
+        textures_folder = f"{subfolder}\\{asset}_{k}\\textures"
 
         if type == "hdris":
             self.folder = down_folder + filename
         elif type == "models":
             self.folder = (
-                f"{self.textures_folder}\\{self.filename}"
+                f"{textures_folder}\\{self.filename}"
                 if not b
-                else f"{self.asset_k_folder}\\{self.filename}"
+                else f"{asset_k_folder}\\{self.filename}"
             )
         else:
             self.folder = (
-                f"{self.textures_folder}\\{self.filename}"
+                f"{textures_folder}\\{self.filename}"
                 if not self.b
-                else f"{self.asset_k_folder}\\{self.filename}"
+                else f"{asset_k_folder}\\{self.filename}"
             )
 
         if type == "hdris":
@@ -66,12 +59,8 @@ class Downloader:
             ]
         else:
             self.filelist = (
-                [t.name for t in os.scandir(path=self.textures_folder) if t.is_file()]
-                + [
-                    bl.name
-                    for bl in os.scandir(path=self.asset_k_folder)
-                    if bl.is_file()
-                ]
+                [t.name for t in os.scandir(path=textures_folder) if t.is_file()]
+                + [bl.name for bl in os.scandir(path=asset_k_folder) if bl.is_file()]
                 + [pr.name for pr in os.scandir(path=subfolder) if pr.is_file()]
             )
 
@@ -81,62 +70,34 @@ class Downloader:
             with open(self.folder, "wb") as f:
                 f.write(r.content)
 
+        args = (
+            self.type,
+            self.asset,
+            self.filename,
+            self.down_folder,
+            self.subfolder,
+            self.md5,
+            self.k,
+            self.b,
+        )
         if self.filename in self.filelist and self.overwrite == False:
-            h = hash_check(
-                self.type,
-                self.down_folder,
-                self.subfolder,
-                self.asset,
-                self.k,
-                self.filename,
-                self.md5,
-                self.b,
-            )
+            h = hash_check(*args)
+            h_result = theme.md5v if h == True else theme.md5x
             return (
-                t_skipped_file
-                + " Already exist (skipped): "
-                + self.filename
-                + (v if h == True else x),
+                theme.t_skipped_file + theme.t_sk + self.filename + h_result,
                 "exist",
-                h,
-            )
-        elif self.filename in self.filelist and self.overwrite:
-            save_file()
-            h = hash_check(
-                self.type,
-                self.down_folder,
-                self.subfolder,
-                self.asset,
-                self.k,
-                self.filename,
-                self.md5,
-                self.b,
-            )
-            return (
-                t_down_file
-                + " Already exist (overwritten): "
-                + self.filename
-                + (v if h == True else x),
-                "downloaded",
                 h,
             )
         else:
             save_file()
-            h = hash_check(
-                self.type,
-                self.down_folder,
-                self.subfolder,
-                self.asset,
-                self.k,
-                self.filename,
-                self.md5,
-                self.b,
-            )
+            ow = self.filename in self.filelist and self.overwrite
+            h = hash_check(*args)
+            h_result = theme.md5v if h == True else theme.md5x
             return (
-                t_down_file
-                + " Download complete: "
+                theme.t_down_file
+                + (theme.t_ow if ow else theme.t_dw)
                 + self.filename
-                + (v if h == True else x),
+                + h_result,
                 "downloaded",
                 h,
             )
@@ -173,13 +134,14 @@ class Downloader:
             ) as f:
                 f.write(r.content)
 
+        print(theme.t_img)
         for i in imgs_dict:
             filename = f"{self.asset}_{i}.png"
             if filename in self.filelist and self.overwrite == False:
-                rprint(t_skipped_img + "Already exist (skipped): " + filename)
+                print(theme.t_skipped_img + theme.t_sk + filename)
             elif filename in self.filelist and self.overwrite:
                 save_file(imgs_dict[i], filename)
-                rprint(t_down_img + "Already exist (overwritten): " + filename)
+                print(theme.t_down_img + theme.t_ow + filename)
             else:
                 save_file(imgs_dict[i], filename)
-                rprint(t_down_img + "Download complete: " + filename)
+                print(theme.t_down_img + theme.t_dw + filename)

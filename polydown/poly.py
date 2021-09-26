@@ -1,20 +1,15 @@
 import os, json
-from rich import print as rprint
+from rich import print
 
 from .report import Report
 from .downloader import Downloader
-
-# themes
-t_skipped_file = "[on dark_khaki]📁↳[/on dark_khaki][green]"
-t_down_file = "[grey11 on cyan]📁↓[/grey11 on cyan][cyan]"
-
-t_skipped_img = "[on dark_khaki]🖼️↳[/on dark_khaki][green]"
-t_down_img = "[grey11 on cyan]🖼️↓[/grey11 on cyan][cyan]"
-# /themes
+from . import theme
 
 
 class Poly:
-    def __init__(self, type, session, category, down_folder, sizes, overwrite, noimgs):
+    def __init__(
+        self, type, session, category, down_folder, sizes, overwrite, noimgs, iters
+    ):
         self.s = session
         self.type = type
         self.asset_url = f"https://api.polyhaven.com/assets?t={type}"
@@ -26,6 +21,7 @@ class Poly:
         self.down_sizes = sizes
         self.overwrite = overwrite
         self.noimgs = noimgs
+        self.iters = iters
 
         self.corrupted_files = []
         self.exist_files = 0
@@ -56,7 +52,9 @@ class Poly:
                     os.mkdir(self.subfolder + f"\\{asset}_{k}")
                     os.mkdir(self.subfolder + f"\\{asset}_{k}\\textures")
 
-            rprint("[grey50]" + asset + ":")
+            print("[green]" + asset + ":")
+            print(theme.t_file)
+
             for k in k_list if self.down_sizes == [] else self.down_sizes:
                 if k in k_list:
                     # download blend file
@@ -64,21 +62,22 @@ class Poly:
                     bl_url = file_js["blend"][k]["blend"]["url"]
                     bl_md5 = file_js["blend"][k]["blend"]["md5"]
                     filename = bl_url.split("/")[-1]
-                    dw = Downloader(
+                    args = (
                         self.type,
+                        asset,
                         self.s,
                         self.down_folder,
                         self.subfolder,
                         filename,
-                        asset,
-                        k,
+                        self.overwrite,
                         bl_url,
                         bl_md5,
-                        self.overwrite,
+                        k,
                         True,
                     )
+                    dw = Downloader(*args)
                     d = dw.file()
-                    rprint(d[0])
+                    print(d[0])
                     self.report.add(d[1])
                     if d[2] == False:
                         self.corrupted_files.append(filename)
@@ -87,30 +86,31 @@ class Poly:
                         url = include[i]["url"]
                         md5 = include[i]["md5"]
                         filename = url.split("/")[-1]
-                        dw = Downloader(
+                        args = (
                             self.type,
+                            asset,
                             self.s,
                             self.down_folder,
                             self.subfolder,
                             filename,
-                            asset,
-                            k,
+                            self.overwrite,
                             url,
                             md5,
-                            self.overwrite,
-                            False,
+                            k,
+                            True,
                         )
+                        dw = Downloader(*args)
                         d = dw.file()
-                        rprint(d[0])
+                        print(d[0])
                         self.report.add(d[1])
                         if d[2] == False:
                             self.corrupted_files.append(filename)
 
             if self.noimgs != True:
                 dw.img()
-            # count += 1
-            # if count == 4:
-            #     break
+            count += 1
+            if count == self.iters:
+                break
 
     def hdris(self):
         count = 0
@@ -119,33 +119,35 @@ class Poly:
             file_js = json.loads(self.s.get(files_url).content)
             file_sizes_list = [i for i in file_js["hdri"]]
             file_sizes_list.sort(key=lambda fname: int(fname.split("k")[0]))
-            rprint("[grey50]" + asset + ":")
+
+            print("[green]" + asset + ":")
+            print(theme.t_file)
 
             for k in file_sizes_list if self.down_sizes == [] else self.down_sizes:
                 url = file_js["hdri"][k]["hdr"]["url"]
                 md5 = file_js["hdri"][k]["hdr"]["md5"]
                 filename = url.split("/")[-1]
-                dw = Downloader(
+                args = (
                     self.type,
+                    asset,
                     self.s,
                     self.down_folder,
-                    "no",
+                    None,
                     filename,
-                    asset,
-                    k,
+                    self.overwrite,
                     url,
                     md5,
-                    self.overwrite,
-                    False,
                 )
+                dw = Downloader(*args)
                 d = dw.file()
-                rprint(d[0])
+                print(d[0])
                 self.report.add(d[1])
                 if d[2] == False:
                     self.corrupted_files.append(filename)
 
             if self.noimgs != True:
                 dw.img()
-            # count += 1
-            # if count == 2:
-            #     break
+
+            count += 1
+            if count == self.iters:
+                break

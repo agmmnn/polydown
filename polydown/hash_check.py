@@ -1,7 +1,16 @@
 import hashlib
 
 
-def hash_check(type, down_folder, subfolder, asset, k, filename, hash, b):
+def hash_check(
+    type,
+    asset,
+    filename,
+    down_folder,
+    subfolder,
+    hash,
+    k=None,
+    b=None,
+):
     if type == "hdris":
         file = down_folder + filename
     else:
