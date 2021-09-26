@@ -84,7 +84,7 @@ class Downloader:
             h = hash_check(*args)
             h_result = theme.md5v if h == True else theme.md5x
             return (
-                theme.t_skipped_file + theme.t_sk + self.filename + h_result,
+                theme.t_skipped + ("🔰" if self.b else "  ") + self.filename + h_result,
                 "exist",
                 h,
             )
@@ -94,11 +94,11 @@ class Downloader:
             h = hash_check(*args)
             h_result = theme.md5v if h == True else theme.md5x
             return (
-                theme.t_down_file
-                + (theme.t_ow if ow else theme.t_dw)
+                (theme.t_down_ow if ow else theme.t_down)
+                + ("🔰" if self.b else "  ")
                 + self.filename
                 + h_result,
-                "downloaded",
+                ("downloaded_ow" if ow else "downloaded"),
                 h,
             )
 
@@ -138,10 +138,10 @@ class Downloader:
         for i in imgs_dict:
             filename = f"{self.asset}_{i}.png"
             if filename in self.filelist and self.overwrite == False:
-                print(theme.t_skipped_img + theme.t_sk + filename)
+                print(theme.t_skipped_img + filename)
             elif filename in self.filelist and self.overwrite:
                 save_file(imgs_dict[i], filename)
-                print(theme.t_down_img + theme.t_ow + filename)
+                print(theme.t_down_ow_img + filename)
             else:
                 save_file(imgs_dict[i], filename)
-                print(theme.t_down_img + theme.t_dw + filename)
+                print(theme.t_down_img + filename)

@@ -52,7 +52,11 @@ class Poly:
                     os.mkdir(self.subfolder + f"\\{asset}_{k}")
                     os.mkdir(self.subfolder + f"\\{asset}_{k}\\textures")
 
-            print("[green]" + asset + ":")
+            print(
+                theme.t_atitle
+                + " ".join([i.capitalize() for i in asset.split("_")])
+                + ":"
+            )
             print(theme.t_file)
 
             for k in k_list if self.down_sizes == [] else self.down_sizes:
@@ -97,7 +101,7 @@ class Poly:
                             url,
                             md5,
                             k,
-                            True,
+                            False,
                         )
                         dw = Downloader(*args)
                         d = dw.file()
@@ -120,7 +124,11 @@ class Poly:
             file_sizes_list = [i for i in file_js["hdri"]]
             file_sizes_list.sort(key=lambda fname: int(fname.split("k")[0]))
 
-            print("[green]" + asset + ":")
+            print(
+                theme.t_atitle
+                + " ".join([i.capitalize() for i in asset.split("_")])
+                + ":"
+            )
             print(theme.t_file)
 
             for k in file_sizes_list if self.down_sizes == [] else self.down_sizes:
