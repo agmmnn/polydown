@@ -33,6 +33,14 @@ ap.add_argument(
     default=[],
     help="size(s) of downloaded asset files. eg: 1k 2k 4k",
 )
+ap.add_argument(
+    "-it",
+    "--iters",
+    action="store",
+    type=int,
+    default=-1,
+    help="amount of iterations.",
+)
 # ap.add_argument(
 #     "-ff",
 #     "--file_format",
