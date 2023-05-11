@@ -8,7 +8,16 @@ from . import theme
 
 class Poly:
     def __init__(
-        self, type, session, category, down_folder, sizes, overwrite, noimgs, iters
+        self,
+        type,
+        session,
+        category,
+        down_folder,
+        sizes,
+        overwrite,
+        noimgs,
+        iters,
+        tone,
     ):
         self.s = session
         self.type = type
@@ -22,6 +31,7 @@ class Poly:
         self.overwrite = overwrite
         self.noimgs = noimgs
         self.iters = iters
+        self.tone = tone
 
         self.corrupted_files = []
         self.exist_files = 0
@@ -143,6 +153,7 @@ class Poly:
                     None,
                     filename,
                     self.overwrite,
+                    self.tone,
                     url,
                     md5,
                 )

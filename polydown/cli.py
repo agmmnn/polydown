@@ -15,6 +15,7 @@ def polycli(args):
     category = args.category
     noimgs = args.noimgs
     iters = args.iters
+    tone = args.tone
     s = requests.Session()
 
     # ->🔒asset type->
@@ -76,4 +77,4 @@ def polycli(args):
         + "\n"
     )
 
-    Poly(asset_type, s, category, down_folder, sizes, overwrite, noimgs, iters)
+    Poly(asset_type, s, category, down_folder, sizes, overwrite, noimgs, iters, tone)

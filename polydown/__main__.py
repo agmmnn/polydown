@@ -56,6 +56,13 @@ ap.add_argument(
     help="Overwrite if the files already exists.  otherwise the current task will be skipped.",
 )
 ap.add_argument(
+    "-t",
+    "--tone",
+    action="store_true",
+    default=False,
+    help="Download 8K Tonemapped JPG (only HDRIs).",
+)
+ap.add_argument(
     "-no",
     "--noimgs",
     action="store_true",

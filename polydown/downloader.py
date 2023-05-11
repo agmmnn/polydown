@@ -14,6 +14,7 @@ class Downloader:
         subfolder,
         filename,
         overwrite,
+        tone,
         # --
         url=None,
         md5=None,
@@ -26,6 +27,7 @@ class Downloader:
         self.s = session
         self.down_folder = down_folder
         self.overwrite = overwrite
+        self.tone = tone
         self.md5 = md5
         self.url = url
         self.subfolder = subfolder
@@ -108,6 +110,7 @@ class Downloader:
                 "thumb": f"https://cdn.polyhaven.com/asset_img/thumbs/{self.asset}.png",
                 "primary": f"https://cdn.polyhaven.com/asset_img/primary/{self.asset}.png",
                 "renders_lone_monk": f"https://cdn.polyhaven.com/asset_img/renders/{self.asset}/lone_monk.png",
+                "Tonemapped8K": f"https://dl.polyhaven.org/file/ph-assets/HDRIs/extra/Tonemapped%20JPG/{self.asset}.jpg",
             }
         elif self.type == "textures":
             imgs_dict = {
@@ -136,6 +139,8 @@ class Downloader:
 
         print(theme.t_img)
         for i in imgs_dict:
+            if i == "Tonemapped8K" and not self.tone:
+                continue
             filename = f"{self.asset}_{i}.png"
             if filename in self.filelist and self.overwrite == False:
                 print(theme.t_skipped_img + filename)
