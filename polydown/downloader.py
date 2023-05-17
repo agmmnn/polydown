@@ -15,6 +15,7 @@ class Downloader:
         filename,
         overwrite,
         tone,
+        file_format,
         # --
         url=None,
         md5=None,
@@ -28,6 +29,7 @@ class Downloader:
         self.down_folder = down_folder
         self.overwrite = overwrite
         self.tone = tone
+        self.file_format = file_format
         self.md5 = md5
         self.url = url
         self.subfolder = subfolder

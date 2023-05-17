@@ -41,13 +41,14 @@ ap.add_argument(
     default=-1,
     help="amount of iterations.",
 )
-# ap.add_argument(
-#     "-ff",
-#     "--file_format",
-#     action="store",
-#     type=str,
-#     help="target download folder.",
-# )
+ap.add_argument(
+    "-ff",
+    "--fileformat",
+    action="store",
+    type=str,
+    default="hdr",
+    help="file format for hdris (hdr, exr).",
+)
 ap.add_argument(
     "-o",
     "--overwrite",

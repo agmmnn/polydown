@@ -18,6 +18,7 @@ class Poly:
         noimgs,
         iters,
         tone,
+        file_format,
     ):
         self.s = session
         self.type = type
@@ -32,6 +33,7 @@ class Poly:
         self.noimgs = noimgs
         self.iters = iters
         self.tone = tone
+        self.file_format = file_format
 
         self.corrupted_files = []
         self.exist_files = 0
@@ -85,6 +87,7 @@ class Poly:
                         filename,
                         self.overwrite,
                         self.tone,
+                        self.file_format,
                         bl_url,
                         bl_md5,
                         k,
@@ -110,6 +113,7 @@ class Poly:
                             filename,
                             self.overwrite,
                             self.tone,
+                            self.file_format,
                             url,
                             md5,
                             k,
@@ -130,6 +134,7 @@ class Poly:
 
     def hdris(self):
         count = 0
+
         for asset in self.asset_list:
             files_url = "https://api.polyhaven.com/files/" + asset
             file_js = json.loads(self.s.get(files_url).content)
@@ -144,8 +149,8 @@ class Poly:
             print(theme.t_file)
 
             for k in file_sizes_list if self.down_sizes == [] else self.down_sizes:
-                url = file_js["hdri"][k]["hdr"]["url"]
-                md5 = file_js["hdri"][k]["hdr"]["md5"]
+                url = file_js["hdri"][k][self.file_format]["url"]
+                md5 = file_js["hdri"][k][self.file_format]["md5"]
                 filename = url.split("/")[-1]
                 args = (
                     self.type,
@@ -156,6 +161,7 @@ class Poly:
                     filename,
                     self.overwrite,
                     self.tone,
+                    self.file_format,
                     url,
                     md5,
                 )

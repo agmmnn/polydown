@@ -70,6 +70,7 @@ $ polydown models -c decorative -f folder -s 1k
 -no, --noimgs     do not download 'preview, render, thumbnail...' images.
 -it, --iters      amount of iterations.
 -t, --tone        Download 8K Tonemapped JPG (only HDRIs).
+-ff, --fileformat file format for hdris (hdr, exr).
 -v, --version     show program's version number and exit
 ```
 

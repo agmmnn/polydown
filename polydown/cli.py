@@ -16,6 +16,7 @@ def polycli(args):
     noimgs = args.noimgs
     iters = args.iters
     tone = args.tone
+    fileformat = args.fileformat
     s = requests.Session()
 
     # ->🔒asset type->
@@ -45,17 +46,15 @@ def polycli(args):
             exit()
 
     # ->🔒file_format->
-    # if file_format == None:
-    #     pass
-    # elif asset_type == "hdris" and file_format not in ["exr", "hdr"]:
-    #     print(f"[red]{file_format} is not a valid file format for {asset_type}.[/red]")
-    #     exit()
-    # elif asset_type in ["models", "textures"] and file_format not in [
+    if asset_type == "hdris" and fileformat not in ["exr", "hdr"]:
+        print(f"[red]{fileformat} is not a valid file format for {asset_type}.[/red]")
+        exit()
+    # elif asset_type in ["models", "textures"] and fileformat not in [
     #     "jpg",
     #     "png",
     #     "exr",
     # ]:
-    #     print(f"[red]{file_format} is not a valid file format for {asset_type}.[/red]")
+    #     print(f"[red]{fileformat} is not a valid file format for {asset_type}.[/red]")
     #     exit()
 
     # ->🔒folder->
@@ -77,4 +76,15 @@ def polycli(args):
         + "\n"
     )
 
-    Poly(asset_type, s, category, down_folder, sizes, overwrite, noimgs, iters, tone)
+    Poly(
+        asset_type,
+        s,
+        category,
+        down_folder,
+        sizes,
+        overwrite,
+        noimgs,
+        iters,
+        tone,
+        fileformat,
+    )
