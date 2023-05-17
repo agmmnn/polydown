@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "polydown"
-version = "0.3.0"
+version = "0.3.1"
 description = "Batch downloader for polyhaven (polyhaven.com)"
 authors = ["Gökçe Merdun <agmmnn@gmail.com>"]
 license = "MIT"
