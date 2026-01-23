@@ -127,7 +127,29 @@ class PolydownController:
                 except asyncio.QueueEmpty:
                     break
 
-                worker_progress.update(task_id, description=f"Worker {worker_id+1}: {task.filename}", total=None, completed=0, visible=True)
+                # Colorize filename based on type
+                fname = task.filename
+                lower_name = fname.lower()
+                color = "white"
+                
+                if lower_name.endswith(".blend"):
+                    color = "bold cyan"
+                elif lower_name.endswith((".exr", ".hdr")):
+                    color = "bold yellow"
+                elif lower_name.endswith((".png", ".jpg", ".jpeg")):
+                    # Distinguish between previews/renders and actual texture maps
+                    if any(x in lower_name for x in ["thumb", "primary", "renders"]):
+                        color = "magenta"
+                    else:
+                        color = "green"
+
+                worker_progress.update(
+                    task_id, 
+                    description=f"Worker {worker_id+1}: [{color}]{fname}[/{color}]", 
+                    total=None, 
+                    completed=0, 
+                    visible=True
+                )
 
                 def progress_cb(chunk_size, total_size):
                     worker_progress.update(task_id, total=total_size, advance=chunk_size)
