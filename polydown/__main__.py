@@ -2,7 +2,7 @@ import argparse
 import datetime
 from .cli import polycli
 
-__version__ = "0.3.2"
+__version__ = "0.4.0"
 
 ap = argparse.ArgumentParser()
 ap.add_argument(
@@ -70,7 +70,30 @@ ap.add_argument(
     default=False,
     help="Do not download 'preview, render, thumbnail...' images.",
 )
+ap.add_argument(
+    "-w",
+    "--workers",
+    action="store",
+    type=int,
+    default=4,
+    help="number of concurrent download workers.",
+)
 ap.add_argument("-v", "--version", action="version", version="%(prog)s v" + __version__)
+ap.add_argument(
+    "-tf",
+    "--texture-format",
+    action="store",
+    type=str,
+    default=None,
+    choices=["jpg", "png", "exr"],
+    help="texture file format (jpg, png, exr).",
+)
+ap.add_argument(
+    "--maps",
+    nargs="*",
+    default=None,
+    help="maps to download (e.g. diffuse, rough, arm, etc). If used without values, lists available common map types.",
+)
 args = ap.parse_args()
 
 

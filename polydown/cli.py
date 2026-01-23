@@ -1,13 +1,20 @@
+import asyncio
 import os
-import requests
-import json
+import aiohttp
 from rich import print
 
-from .poly import Poly
+from .controller import PolydownController
+from .api import PolyHavenClient
 
 
 def polycli(args):
-    # print(args, "\n")
+    try:
+        asyncio.run(_async_polycli(args))
+    except KeyboardInterrupt:
+        print("\n[yellow]Operation cancelled by user.[/yellow]")
+
+
+async def _async_polycli(args):
     asset_type = args.asset_type[0]
     folder = args.folder
     overwrite = args.overwrite
@@ -17,74 +24,101 @@ def polycli(args):
     iters = args.iters
     tone = args.tone
     fileformat = args.fileformat
-    s = requests.Session()
+    texture_format = args.texture_format
+    maps = args.maps
 
-    # ->🔒asset type->
-    asset_type_list = list(json.loads(s.get("https://api.polyhaven.com/types").content))
-    if asset_type not in asset_type_list:
-        print(f"'{asset_type}' is not a valid asset type!")
-        exit()
+    # Validation Phase
+    async with aiohttp.ClientSession() as session:
+        client = PolyHavenClient(session)
 
-    # ->🔒category->
-    if category == "":
-        js = json.loads(
-            s.get(f"https://api.polyhaven.com/categories/{asset_type}").content
-        )
-        print(f"[green]There are {len(js)} available categories for {asset_type}:")
-        print(js)
-        exit()
-    elif category != None:
-        asset_category_list = list(
-            json.loads(
-                s.get(f"https://api.polyhaven.com/categories/{asset_type}").content
-            )
-        )
-        if category not in asset_category_list:
-            print(
-                f"[red]{category} is not a valid category.[/red]\nEnter empty '-c' argument to get the category list of the {asset_type}."
-            )
-            exit()
+        # ->🔒asset type->
+        try:
+            asset_type_list = await client.get_asset_types()
+        except Exception as e:
+            print(f"[red]Error connecting to API: {e}[/red]")
+            return
+
+        if asset_type not in asset_type_list:
+            print(f"'{asset_type}' is not a valid asset type!")
+            return
+
+        # ->🔒maps list->
+        if maps is not None and len(maps) == 0:
+            print(f"[green]Common available map types for {asset_type} (actual availability varies per asset):[/green]")
+            common_maps = [
+                "Diffuse", "Rough", "nor_gl", "nor_dx", "disp", 
+                "ao", "arm", "spec", "alpha", "metal", 
+                "diff", "roughness", "displacement", "metallic"
+            ]
+            for m in common_maps:
+                print(f"- {m}")
+            return
+
+        # ->🔒category->
+        if category == "":
+            try:
+                js = await client.get_categories(asset_type)
+                print(f"[green]There are {len(js)} available categories for {asset_type}:")
+                print(js)
+                return
+            except Exception as e:
+                print(f"[red]Error fetching categories: {e}[/red]")
+                return
+        elif category is not None:
+            try:
+                asset_category_list = await client.get_categories(asset_type)
+                if category not in asset_category_list:
+                    print(
+                        f"[red]{category} is not a valid category.[/red]\nEnter empty '-c' argument to get the category list of the {asset_type}."
+                    )
+                    return
+            except Exception as e:
+                print(f"[red]Error validating category: {e}[/red]")
+                return
 
     # ->🔒file_format->
     if asset_type == "hdris" and fileformat not in ["exr", "hdr"]:
         print(f"[red]{fileformat} is not a valid file format for {asset_type}.[/red]")
-        exit()
-    # elif asset_type in ["models", "textures"] and fileformat not in [
-    #     "jpg",
-    #     "png",
-    #     "exr",
-    # ]:
-    #     print(f"[red]{fileformat} is not a valid file format for {asset_type}.[/red]")
-    #     exit()
+        return
 
     # ->🔒folder->
-    down_folder = os.path.abspath(folder) + ("/" if folder[-1:] != "/" else "")
+    # Handle empty folder arg -> current directory
+    if folder == "":
+        folder = os.getcwd()
+
+    down_folder = os.path.abspath(folder)
     if not os.path.exists(down_folder):
         try:
-            os.mkdir(folder)
+            os.makedirs(down_folder, exist_ok=True)
             print(f'"{folder}" folder not found, creating...')
         except Exception as e:
             print("[red]Error: " + str(e))
-            exit()
+            return
 
     print(
         f"\n[cyan]🔗(polyhaven.com/{asset_type}"
-        + (f"/{category}" if category != None else "")
+        + (f"/{category}" if category is not None else "")
         + ("['all sizes']" if sizes == [] else str(sizes))
         + f")=>🏠"
-        + (f"({folder})" if not folder == "" else "")
+        + (f"({folder})" if folder else "")
         + "\n"
     )
 
-    Poly(
-        asset_type,
-        s,
-        category,
-        down_folder,
-        sizes,
-        overwrite,
-        noimgs,
-        iters,
-        tone,
-        fileformat,
+    # Iters handling: -1 means all, so None for controller
+    iter_limit = iters if iters != -1 else None
+    workers = args.workers
+
+    controller = PolydownController(concurrency=workers)
+    await controller.start(
+        asset_type=asset_type,
+        category=category,
+        folder=down_folder,
+        sizes=sizes,
+        overwrite=overwrite,
+        noimgs=noimgs,
+        iters=iter_limit,
+        tone=tone,
+        fileformat=fileformat,
+        texture_format=args.texture_format,
+        maps=args.maps,
     )

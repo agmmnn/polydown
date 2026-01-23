@@ -8,3 +8,4 @@ dist
 *.spec
 *.manifest
 *.egg-info
+.DS_Store
