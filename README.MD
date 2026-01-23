@@ -78,9 +78,10 @@ polydown textures -c
 | `-s`, `--sizes`       | Size(s) of downloaded assets. Example: `1k 2k 4k`.         |
 | `-o`, `--overwrite`   | Overwrite existing files. Otherwise, skips existing files. |
 | `-no`, `--noimgs`     | Do not download preview, render, or thumbnail images.      |
-| `-it`, --iters`       | Amount of iterations (limit number of assets).             |
+| `-it`, `--iters`      | Amount of iterations (limit number of assets).             |
 | `-t`, `--tone`        | Download 8K Tonemapped JPG (HDRIs only).                   |
 | `-ff`, `--fileformat` | File format for HDRIs (`hdr`, `exr`).                      |
+| `-w`, `--workers`     | Amount of workers (threads) for concurrent downloads.      |
 | `-v`, `--version`     | Show program's version number and exit.                    |
 
 ![screenshot](https://user-images.githubusercontent.com/16024979/134804570-a01138e9-7fc0-4d22-b1b5-c52b3cfcf8a2.png)
@@ -119,8 +120,9 @@ This project uses [uv](https://github.com/astral-sh/uv) for dependency managemen
 
 ## To-Do
 
-- [ ] Unit Tests
-- [ ] Progressbar for current download task(s)
+- [x] Unit Tests
+- [x] Progressbar for current download task(s)
+- [x] Workers for concurrent downloads
 - [ ] Select the file format to download
 - [ ] Download a specific asset, e.g., "polydown hdris stuttgart_suburbs"
 
