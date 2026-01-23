@@ -6,120 +6,124 @@
 <a href="https://pypi.org/project/polydown/">
 <img alt="PyPI" src="https://img.shields.io/pypi/v/polydown"></a>
 
-Batch downloader for [polyhaven.com](https://polyhaven.com/). Download hdris, textures and models in any sizes you want. This project uses Poly Haven's [Public API](https://github.com/Poly-Haven/Public-API).
+Batch downloader for [polyhaven.com](https://polyhaven.com/). Download HDRIs, textures, and models in any sizes you want.  
+This project uses Poly Haven's [Public API](https://github.com/Poly-Haven/Public-API).
 
 </div>
 
-# Installation
+## Installation
 
-```
+```bash
 pip install polydown
 ```
 
-# How to Use
+## Usage
 
-```
-$ polydown hdris
+### Basic Commands
 
-# download all available sizes of all hdris into current folder.
-> 🔗(polyhaven.com/hdris['all sizes'])=>🏠
-```
+Download all **HDRIs**:
 
-```
-$ polydown <asset_type>
-
-# download all assets of this asset type to the current folder in all available sizes.
-# asset types: "hdris", "textures", "models".
+```bash
+polydown hdris
 ```
 
-```
-$ polydown textures -c
+Download all **Textures**:
 
-# list of category in the given asset type.
-```
-
-```
-$ polydown hdris -f hdris_down -s 2k 4k
-
-# download all hdris with given sizes into "hdris_down" folder.
-# /if there is no such folder it will create it./
-> 🔗(polyhaven.com/hdris['2k', '4k'])=>🏠(hdris_down)
+```bash
+polydown textures
 ```
 
-## Example Usage
+Download all **Models**:
 
+```bash
+polydown models
 ```
-$ polydown models -c decorative -f folder -s 1k
 
-# download all "models" with "1k textures" in the "decorative" category into the "folder".
+> **Note:** These commands will download all available sizes for every asset in the category.
+
+---
+
+### Advanced Usage
+
+**Download specific sizes to a specific folder:**
+
+```bash
+polydown hdris -f my_hdris_folder -s 2k 4k
 ```
+
+> Downloads all HDRIs in 2k and 4k resolution to the `my_hdris_folder`.
+
+**Download from a specific category:**
+
+```bash
+polydown models -c decorative -f models_folder -s 1k
+```
+
+> Downloads all "decorative" models with 1k textures into `models_folder`.
+
+**List available categories for an asset type:**
+
+```bash
+polydown textures -c
+```
+
+## Arguments
+
+| Argument              | Description                                                |
+| :-------------------- | :--------------------------------------------------------- |
+| `asset_type`          | Type of asset to download: `hdris`, `textures`, `models`.  |
+| `-h`, `--help`        | Show help message and exit.                                |
+| `-f`, `--folder`      | Target download folder.                                    |
+| `-c`, `--category`    | Category to download (e.g., `decorative`, `nature`).       |
+| `-s`, `--sizes`       | Size(s) of downloaded assets. Example: `1k 2k 4k`.         |
+| `-o`, `--overwrite`   | Overwrite existing files. Otherwise, skips existing files. |
+| `-no`, `--noimgs`     | Do not download preview, render, or thumbnail images.      |
+| `-it`, --iters`       | Amount of iterations (limit number of assets).             |
+| `-t`, `--tone`        | Download 8K Tonemapped JPG (HDRIs only).                   |
+| `-ff`, `--fileformat` | File format for HDRIs (`hdr`, `exr`).                      |
+| `-v`, `--version`     | Show program's version number and exit.                    |
 
 ![screenshot](https://user-images.githubusercontent.com/16024979/134804570-a01138e9-7fc0-4d22-b1b5-c52b3cfcf8a2.png)
 
 ![file structure](https://user-images.githubusercontent.com/16024979/134737874-cc04a42e-5855-4acb-9394-dac08352efee.png)
 
-# Arguments:
+## Development
 
-```
-<asset_type>      "hdris, textures, models"
--h, --help        show this help message and exit
--f, --folder      target download folder.
--c, --category    category to download.
--s, --sizes       size(s) of downloaded asset files. eg: 1k 2k 4k
--o, --overwrite   overwrite if the files already exists. otherwise the current task will be skipped.
--no, --noimgs     do not download 'preview, render, thumbnail...' images.
--it, --iters      amount of iterations.
--t, --tone        Download 8K Tonemapped JPG (only HDRIs).
--ff, --fileformat file format for hdris (hdr, exr).
--v, --version     show program's version number and exit
-```
+This project uses [uv](https://github.com/astral-sh/uv) for dependency management.
 
-# To-Do
+### Setup
+
+1. **Install `uv`**:
+
+   ```bash
+   curl -LsSf https://astral.sh/uv/install.sh | sh
+   ```
+
+2. **Sync dependencies**:
+
+   ```bash
+   uv sync
+   ```
+
+3. **Run the CLI**:
+
+   ```bash
+   uv run polydown --help
+   ```
+
+4. **Run tests**:
+
+   ```bash
+   uv run pytest
+   ```
+
+## To-Do
 
 - [ ] Unit Tests
 - [ ] Progressbar for current download task(s)
 - [ ] Select the file format to download
-- [ ] Download a specific asset, "polydown hdris stuttgart_suburbs"
+- [ ] Download a specific asset, e.g., "polydown hdris stuttgart_suburbs"
 
-# Requirements
-
-- Python>3.7
-
-## Dependencies
-
-- [requests](https://pypi.org/project/requests/)
-- [rich](https://github.com/willmcgugan/rich)
-
-# Development
-
-This project uses [uv](https://github.com/astral-sh/uv) for dependency management.
-
-## Setup
-
-1. Install `uv`:
-
-```bash
-curl -LsSf https://astral.sh/uv/install.sh | sh
-```
-
-2. Sync dependencies:
-
-```bash
-uv sync
-```
-
-3. Run the CLI:
-
-```bash
-uv run polydown --help
-```
-
-4. Run tests:
-
-```bash
-uv run pytest
-```
-
-# License
+## License
 
 [MIT](https://github.com/agmmnn/polydown/blob/master/LICENSE)
