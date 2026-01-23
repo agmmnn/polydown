@@ -90,9 +90,9 @@ ap.add_argument(
 )
 ap.add_argument(
     "--maps",
-    nargs="+",
+    nargs="*",
     default=None,
-    help="list of maps to download (e.g. diffuse, rough, arm, etc).",
+    help="maps to download (e.g. diffuse, rough, arm, etc). If used without values, lists available common map types.",
 )
 args = ap.parse_args()
 

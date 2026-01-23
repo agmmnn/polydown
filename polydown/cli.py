@@ -42,6 +42,18 @@ async def _async_polycli(args):
             print(f"'{asset_type}' is not a valid asset type!")
             return
 
+        # ->🔒maps list->
+        if maps is not None and len(maps) == 0:
+            print(f"[green]Common available map types for {asset_type} (actual availability varies per asset):[/green]")
+            common_maps = [
+                "Diffuse", "Rough", "nor_gl", "nor_dx", "disp", 
+                "ao", "arm", "spec", "alpha", "metal", 
+                "diff", "roughness", "displacement", "metallic"
+            ]
+            for m in common_maps:
+                print(f"- {m}")
+            return
+
         # ->🔒category->
         if category == "":
             try:
