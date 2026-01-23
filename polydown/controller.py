@@ -2,8 +2,19 @@ import asyncio
 import os
 import aiohttp
 from typing import List, Optional
-from rich.progress import Progress, SpinnerColumn, BarColumn, TextColumn, TimeRemainingColumn
-from rich.console import Console
+from rich.progress import (
+    Progress,
+    SpinnerColumn,
+    BarColumn,
+    TextColumn,
+    TimeRemainingColumn,
+    DownloadColumn,
+    TransferSpeedColumn,
+    TaskID
+)
+from rich.console import Console, Group
+from rich.live import Live
+from rich.panel import Panel
 
 from .api import PolyHavenClient
 from .downloader import DownloadManager, DownloadTask
@@ -68,45 +79,87 @@ class PolydownController:
                 return
 
             # 3. Execute Downloads
-            results = {"downloaded": 0, "exists": 0, "failed": 0, "skipped": 0, "corrupted": 0}
+            await self._execute_downloads(tasks, downloader)
 
-            with Progress(
-                SpinnerColumn(),
-                TextColumn("[progress.description]{task.description}"),
-                BarColumn(),
-                TextColumn("[progress.percentage]{task.percentage:>3.0f}%"),
-                TimeRemainingColumn(),
-                console=console
-            ) as progress:
-                overall_task = progress.add_task("Downloading...", total=len(tasks))
 
-                async def do_download(task: DownloadTask):
-                    filename, status, verified = await downloader.download(task)
-                    progress.advance(overall_task)
+    async def _execute_downloads(self, tasks: List[DownloadTask], downloader: DownloadManager):
+        queue = asyncio.Queue()
+        for task in tasks:
+            queue.put_nowait(task)
 
-                    if status == "failed":
-                        results["failed"] += 1
-                    elif status == "exists":
-                        results["exists"] += 1
-                        if not verified:
-                            results["corrupted"] += 1
-                            console.print(f"[red]Corrupted file detected: {filename}")
-                    else:
-                         # downloaded or downloaded_ow
-                        results["downloaded"] += 1
-                        if not verified:
-                             results["corrupted"] += 1
-                             console.print(f"[red]Corrupted file detected (post-download): {filename}")
+        results = {"downloaded": 0, "exists": 0, "failed": 0, "skipped": 0, "corrupted": 0}
 
-                await asyncio.gather(*[do_download(t) for t in tasks])
+        # UI Setup
+        overall_progress = Progress(
+            TextColumn("[bold blue]{task.description}"),
+            BarColumn(),
+            TextColumn("[progress.percentage]{task.percentage:>3.0f}%"),
+            TextColumn("({task.completed}/{task.total})"),
+            TimeRemainingColumn(),
+        )
 
-            # 4. Report
-            console.print("\n[bold]Summary:[/bold]")
-            console.print(f"[green]Downloaded: {results['downloaded']}")
-            console.print(f"[yellow]Existing: {results['exists']}")
-            console.print(f"[red]Failed: {results['failed']}")
-            if results['corrupted'] > 0:
-                console.print(f"[bold red]Corrupted (MD5 mismatch): {results['corrupted']}")
+        worker_progress = Progress(
+            TextColumn("[bold green]{task.description}"),
+            BarColumn(),
+            DownloadColumn(),
+            TransferSpeedColumn(),
+        )
+
+        progress_group = Group(
+            Panel(overall_progress, title="Overall Progress", border_style="blue"),
+            Panel(worker_progress, title="Worker Threads", border_style="green")
+        )
+
+        overall_task_id = overall_progress.add_task("Total Files", total=len(tasks))
+
+        worker_task_ids = []
+        for i in range(self.concurrency):
+            tid = worker_progress.add_task(f"Worker {i+1}: Idle", visible=True, total=None)
+            worker_task_ids.append(tid)
+
+        async def worker(worker_id: int, task_id: TaskID):
+            while True:
+                try:
+                    task = queue.get_nowait()
+                except asyncio.QueueEmpty:
+                    break
+
+                worker_progress.update(task_id, description=f"Worker {worker_id+1}: {task.filename}", total=None, completed=0, visible=True)
+
+                def progress_cb(chunk_size, total_size):
+                    worker_progress.update(task_id, total=total_size, advance=chunk_size)
+
+                filename, status, verified = await downloader.download(task, progress_cb)
+
+                if status == "failed":
+                    results["failed"] += 1
+                elif status == "exists":
+                    results["exists"] += 1
+                else:
+                    results["downloaded"] += 1
+
+                if not verified:
+                    results["corrupted"] += 1
+
+                overall_progress.advance(overall_task_id)
+                worker_progress.update(task_id, description=f"Worker {worker_id+1}: Idle", visible=True)
+                queue.task_done()
+
+        with Live(progress_group, console=console, refresh_per_second=10):
+            workers = [
+                asyncio.create_task(worker(i, worker_task_ids[i]))
+                for i in range(self.concurrency)
+            ]
+            await asyncio.gather(*workers)
+
+        # 4. Report
+        console.print("\n[bold]Summary:[/bold]")
+        console.print(f"[green]Downloaded: {results['downloaded']}")
+        console.print(f"[yellow]Existing: {results['exists']}")
+        console.print(f"[red]Failed: {results['failed']}")
+        if results['corrupted'] > 0:
+            console.print(f"[bold red]Corrupted (MD5 mismatch): {results['corrupted']}")
+
 
     def _generate_tasks(
         self,

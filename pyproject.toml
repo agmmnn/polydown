@@ -1,17 +1,12 @@
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
-
-[project]
+[tool.poetry]
 name = "polydown"
 version = "0.3.2"
 description = "Batch downloader for polyhaven (polyhaven.com)"
+authors = ["Gökçe Merdun <agmmnn@gmail.com>"]
+license = "MIT"
 readme = "README.md"
-requires-python = ">=3.10"
-license = {text = "MIT"}
-authors = [
-    {name = "Gökçe Merdun", email = "agmmnn@gmail.com"}
-]
+homepage = "https://github.com/agmmnn/polydown"
+repository = "https://github.com/agmmnn/polydown"
 keywords = ["polyhaven", "download", "downloader", "scrape", "hdri", "batch"]
 classifiers = [
     "Programming Language :: Python :: 3",
@@ -19,26 +14,28 @@ classifiers = [
     "Environment :: Console",
     "Topic :: Utilities",
 ]
-dependencies = [
-    "requests>=2.32.5",
-    "rich>=14.2.0",
-    "aiohttp>=3.13.3",
-]
 
-[project.urls]
-Homepage = "https://github.com/agmmnn/polydown"
-Repository = "https://github.com/agmmnn/polydown"
+[tool.poetry.urls]
 Changelog = "https://github.com/agmmnn/polydown/releases"
+Source = "https://github.com/agmmnn/polydown"
 "Bug Tracker" = "https://github.com/agmmnn/polydown/issues"
 
-[project.scripts]
+[tool.poetry.dependencies]
+python = "^3.7"
+requests = "^2.30.0"
+rich = "^13.3.0"
+aiohttp = "^3.8.3"
+
+[tool.poetry.scripts]
 polydown = "polydown.__main__:cli"
 
-[dependency-groups]
-dev = [
-    "black>=26.1.0",
-    "pytest>=7.2.1",
-]
+[tool.poetry.group.dev.dependencies]
+black = "^22.12.0"
+pytest = "^7.2.1"
 
 [tool.black]
 includes = "polydown"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

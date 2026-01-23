@@ -70,6 +70,14 @@ ap.add_argument(
     default=False,
     help="Do not download 'preview, render, thumbnail...' images.",
 )
+ap.add_argument(
+    "-w",
+    "--workers",
+    action="store",
+    type=int,
+    default=4,
+    help="number of concurrent download workers.",
+)
 ap.add_argument("-v", "--version", action="version", version="%(prog)s v" + __version__)
 args = ap.parse_args()
 
