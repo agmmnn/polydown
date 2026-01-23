@@ -67,22 +67,43 @@ polydown models -c decorative -f models_folder -s 1k
 polydown textures -c
 ```
 
+**Granular Texture & Model Selection:**
+
+You can specify the specific file format (e.g. `png`, `jpg`, `exr`) and specific maps (e.g. `diffuse`, `roughness`) for both **textures** and **models**.
+
+```bash
+# Download only PNG textures
+polydown textures -tf png
+
+# Download only Diffuse and Roughness maps
+polydown textures --maps Diffuse Roughness
+
+# Combine them: Download only EXR Normal maps
+polydown textures -tf exr --maps nor_gl
+
+# Works for models too (downloads specific texture maps for the model)
+polydown models -tf jpg --maps Diffuse -s 1k
+polydown models -f downs -s 1k -tf png --maps Diffuse -no
+```
+
 ## Arguments
 
-| Argument              | Description                                                |
-| :-------------------- | :--------------------------------------------------------- |
-| `asset_type`          | Type of asset to download: `hdris`, `textures`, `models`.  |
-| `-h`, `--help`        | Show help message and exit.                                |
-| `-f`, `--folder`      | Target download folder.                                    |
-| `-c`, `--category`    | Category to download (e.g., `decorative`, `nature`).       |
-| `-s`, `--sizes`       | Size(s) of downloaded assets. Example: `1k 2k 4k`.         |
-| `-o`, `--overwrite`   | Overwrite existing files. Otherwise, skips existing files. |
-| `-no`, `--noimgs`     | Do not download preview, render, or thumbnail images.      |
-| `-it`, `--iters`      | Amount of iterations (limit number of assets).             |
-| `-t`, `--tone`        | Download 8K Tonemapped JPG (HDRIs only).                   |
-| `-ff`, `--fileformat` | File format for HDRIs (`hdr`, `exr`).                      |
-| `-w`, `--workers`     | Amount of workers (threads) for concurrent downloads.      |
-| `-v`, `--version`     | Show program's version number and exit.                    |
+| Argument                  | Description                                                                |
+| :------------------------ | :------------------------------------------------------------------------- |
+| `asset_type`              | Type of asset to download: `hdris`, `textures`, `models`.                  |
+| `-h`, `--help`            | Show help message and exit.                                                |
+| `-f`, `--folder`          | Target download folder.                                                    |
+| `-c`, `--category`        | Category to download (e.g., `decorative`, `nature`).                       |
+| `-s`, `--sizes`           | Size(s) of downloaded assets. Example: `1k 2k 4k`.                         |
+| `-o`, `--overwrite`       | Overwrite existing files. Otherwise, skips existing files.                 |
+| `-no`, `--noimgs`         | Do not download preview, render, or thumbnail images.                      |
+| `-it`, `--iters`          | Amount of iterations (limit number of assets).                             |
+| `-t`, `--tone`            | Download 8K Tonemapped JPG (HDRIs only).                                   |
+| `-ff`, `--fileformat`     | File format for HDRIs (`hdr`, `exr`).                                      |
+| `-tf`, `--texture-format` | File format for Textures/Models (`jpg`, `png`, `exr`).                     |
+| `--maps`                  | List of texture maps to download (e.g., `Diffuse`, `Roughness`, `nor_gl`). |
+| `-w`, `--workers`         | Amount of workers (threads) for concurrent downloads.                      |
+| `-v`, `--version`         | Show program's version number and exit.                                    |
 
 ![screenshot](https://user-images.githubusercontent.com/16024979/134804570-a01138e9-7fc0-4d22-b1b5-c52b3cfcf8a2.png)
 
@@ -123,7 +144,7 @@ This project uses [uv](https://github.com/astral-sh/uv) for dependency managemen
 - [x] Unit Tests
 - [x] Progressbar for current download task(s)
 - [x] Workers for concurrent downloads
-- [ ] Select the file format to download
+- [x] Select the file format to download
 - [ ] Download a specific asset, e.g., "polydown hdris stuttgart_suburbs"
 
 ## License

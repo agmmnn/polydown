@@ -24,6 +24,8 @@ async def _async_polycli(args):
     iters = args.iters
     tone = args.tone
     fileformat = args.fileformat
+    texture_format = args.texture_format
+    maps = args.maps
 
     # Validation Phase
     async with aiohttp.ClientSession() as session:
@@ -105,4 +107,6 @@ async def _async_polycli(args):
         iters=iter_limit,
         tone=tone,
         fileformat=fileformat,
+        texture_format=args.texture_format,
+        maps=args.maps,
     )

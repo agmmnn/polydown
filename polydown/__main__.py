@@ -79,6 +79,21 @@ ap.add_argument(
     help="number of concurrent download workers.",
 )
 ap.add_argument("-v", "--version", action="version", version="%(prog)s v" + __version__)
+ap.add_argument(
+    "-tf",
+    "--texture-format",
+    action="store",
+    type=str,
+    default=None,
+    choices=["jpg", "png", "exr"],
+    help="texture file format (jpg, png, exr).",
+)
+ap.add_argument(
+    "--maps",
+    nargs="+",
+    default=None,
+    help="list of maps to download (e.g. diffuse, rough, arm, etc).",
+)
 args = ap.parse_args()
 
 
