@@ -90,6 +90,36 @@ $ polydown models -c decorative -f folder -s 1k
 - [requests](https://pypi.org/project/requests/)
 - [rich](https://github.com/willmcgugan/rich)
 
+# Development
+
+This project uses [uv](https://github.com/astral-sh/uv) for dependency management.
+
+## Setup
+
+1. Install `uv`:
+
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+2. Sync dependencies:
+
+```bash
+uv sync
+```
+
+3. Run the CLI:
+
+```bash
+uv run polydown --help
+```
+
+4. Run tests:
+
+```bash
+uv run pytest
+```
+
 # License
 
 [MIT](https://github.com/agmmnn/polydown/blob/master/LICENSE)
