@@ -10,8 +10,17 @@ async def test_download_file_success():
     mock_session = MagicMock()
     mock_response = AsyncMock()
     mock_response.raise_for_status = MagicMock()
+    mock_response.headers = {'content-length': '12'}
+
     content = b"test content"
-    mock_response.read.return_value = content
+
+    # Mock iter_chunked
+    async def async_iter(chunk_size):
+        yield content
+
+    mock_response.content = MagicMock()
+    mock_response.content.iter_chunked.side_effect = async_iter
+
     mock_session.get.return_value.__aenter__.return_value = mock_response
 
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -62,7 +71,14 @@ async def test_md5_verification():
     mock_response = AsyncMock()
     mock_response.raise_for_status = MagicMock()
     content = b"test content"
-    mock_response.read.return_value = content
+    mock_response.headers = {'content-length': str(len(content))}
+
+    async def async_iter(chunk_size):
+        yield content
+
+    mock_response.content = MagicMock()
+    mock_response.content.iter_chunked.side_effect = async_iter
+
     mock_session.get.return_value.__aenter__.return_value = mock_response
 
     # Calculate correct MD5

@@ -92,8 +92,9 @@ async def _async_polycli(args):
 
     # Iters handling: -1 means all, so None for controller
     iter_limit = iters if iters != -1 else None
+    workers = args.workers
 
-    controller = PolydownController()
+    controller = PolydownController(concurrency=workers)
     await controller.start(
         asset_type=asset_type,
         category=category,

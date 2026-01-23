@@ -3,7 +3,7 @@ import hashlib
 import os
 import aiohttp
 from dataclasses import dataclass
-from typing import Optional, Tuple, Literal
+from typing import Optional, Tuple, Literal, Callable
 
 @dataclass
 class DownloadTask:
@@ -38,7 +38,11 @@ class DownloadManager:
                 hasher.update(chunk)
         return hasher.hexdigest() == expected_md5
 
-    async def download(self, task: DownloadTask) -> Tuple[str, DownloadStatus, bool]:
+    async def download(
+        self,
+        task: DownloadTask,
+        progress_callback: Optional[Callable[[int, int], None]] = None
+    ) -> Tuple[str, DownloadStatus, bool]:
         """
         Downloads a file.
         Returns: (filename, status, md5_verified)
@@ -58,11 +62,13 @@ class DownloadManager:
                 os.makedirs(task.destination_folder, exist_ok=True)
                 async with self.session.get(task.url) as response:
                     response.raise_for_status()
-                    data = await response.read()
+                    total_size = int(response.headers.get('content-length', 0))
 
-                    # Write to file
-                    loop = asyncio.get_running_loop()
-                    await loop.run_in_executor(None, self._write_file_sync, filepath, data)
+                    with open(filepath, "wb") as f:
+                        async for chunk in response.content.iter_chunked(8192):
+                            f.write(chunk)
+                            if progress_callback:
+                                progress_callback(len(chunk), total_size)
 
                 # Verify
                 is_valid = await self.verify_md5(filepath, task.md5) if task.md5 else True
@@ -72,8 +78,3 @@ class DownloadManager:
             except Exception as e:
                 # In a real app we might log this
                 return task.filename, "failed", False
-
-    @staticmethod
-    def _write_file_sync(filepath: str, data: bytes):
-        with open(filepath, "wb") as f:
-            f.write(data)
