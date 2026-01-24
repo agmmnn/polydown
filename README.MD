@@ -1,4 +1,4 @@
-![screenshot](https://user-images.githubusercontent.com/16024979/134770914-bbc829ac-f1aa-43eb-adf4-9d189379d307.gif)
+![screenshot](https://i.imgur.com/MTB3sCz.gif)
 
 <div align="center">
 <a href="https://github.com/agmmnn/polydown">
