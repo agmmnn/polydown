@@ -66,6 +66,8 @@ jobs:
 
       - name: 📤 Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          skip-existing: true
 
   github-release:
     name: 📝 Create GitHub Release
