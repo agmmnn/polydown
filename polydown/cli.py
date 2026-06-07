@@ -27,6 +27,10 @@ async def _async_polycli(args):
     texture_format = args.texture_format
     maps = args.maps
     model_format = args.model_format
+    notexblend = args.notexblend
+    noassetsfolders = args.noassetsfolders
+    noresfolders = args.noresfolders
+    notexfolders = args.notexfolders
 
     # Validation Phase
     async with aiohttp.ClientSession() as session:
@@ -120,6 +124,10 @@ async def _async_polycli(args):
         iters=iter_limit,
         tone=tone,
         fileformat=fileformat,
+        notexblend=notexblend,
+        noassetsfolders=noassetsfolders,
+        noresfolders=noresfolders,
+        notexfolders=notexfolders,
         texture_format=args.texture_format,
         maps=args.maps,
         model_format=model_format,

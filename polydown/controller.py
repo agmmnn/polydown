@@ -35,6 +35,10 @@ class PolydownController:
         noimgs: bool,
         iters: Optional[int],
         tone: bool,
+        notexblend: bool,
+        noassetsfolders: bool,
+        noresfolders: bool,
+        notexfolders: bool,
         fileformat: Optional[str],
         texture_format: Optional[str] = None,
         maps: Optional[List[str]] = None,
@@ -66,8 +70,10 @@ class PolydownController:
                         files_data = await client.get_files(asset_id)
                         new_tasks = self._generate_tasks(
                             asset_type, asset_id, files_data, folder, sizes,
-                            overwrite, noimgs, tone, fileformat,
-                            texture_format, maps, model_format
+                            overwrite, noimgs, tone, notexblend, 
+                            noassetsfolders, noresfolders, notexfolders,
+                            fileformat,
+                            texture_format, maps, model_format,
                         )
                         tasks.extend(new_tasks)
                     except Exception as e:
@@ -197,6 +203,10 @@ class PolydownController:
         overwrite: bool,
         noimgs: bool,
         tone: bool,
+        notexblend: bool,
+        noassetsfolders: bool,
+        noresfolders: bool,
+        notexfolders: bool,
         fileformat: Optional[str],
         texture_format: Optional[str] = None,
         maps: Optional[List[str]] = None,
@@ -206,33 +216,57 @@ class PolydownController:
 
         if asset_type == "hdris":
             tasks.extend(self._generate_hdri_tasks(
-                asset_id, data, root_folder, target_sizes, overwrite, noimgs, tone, fileformat
+                asset_id, data, root_folder, target_sizes, overwrite, noimgs, tone, 
+                noassetsfolders, noresfolders, notexfolders,
+                fileformat
             ))
         elif asset_type in ["textures", "models"]:
             tasks.extend(self._generate_texture_tasks(
                 asset_id, data, root_folder, target_sizes, overwrite, noimgs, tone,
-                texture_format, maps, asset_type, model_format
+                notexblend, noassetsfolders, noresfolders, notexfolders, texture_format,
+                maps, asset_type, model_format,
             ))
 
         return tasks
 
-    def _generate_texture_tasks(self, asset_id, data, root_folder, target_sizes, overwrite, noimgs, tone, texture_format, maps, asset_type="textures", model_format=None):
+    def _generate_texture_tasks(
+        self, 
+        asset_id, 
+        data, 
+        root_folder, 
+        target_sizes, 
+        overwrite, 
+        noimgs, 
+        tone, 
+        notexblend,
+        noassetsfolders,
+        noresfolders,
+        notexfolders,
+        texture_format, 
+        maps, 
+        asset_type="textures", 
+        model_format=None,
+    ):
         tasks = []
 
         # If no specific texture args are provided, fallback to default behavior (downloading model bundle)
         if not texture_format and not maps:
             return self._generate_model_tasks(
                 asset_id, data, root_folder, target_sizes, overwrite, noimgs, tone,
+                noassetsfolders, noresfolders, notexfolders,
                 asset_type=asset_type, model_format=model_format,
             )
 
-        # Logic for Granular Textures
-        # Always attempt to download the model file (but without its default texture dependencies)
-        tasks.extend(self._generate_model_tasks(
-            asset_id, data, root_folder, target_sizes, overwrite,
-            noimgs=True, tone=tone, asset_type=asset_type,
-            include_model_textures=False, model_format=model_format,
-        ))
+        if not notexblend:
+            # Logic for Granular Textures
+            # Always attempt to download the model file (but without its default texture dependencies)
+            tasks.extend(self._generate_model_tasks(
+                asset_id, data, root_folder, target_sizes, overwrite,
+                noimgs=True, tone=tone, noassetsfolders=noassetsfolders,
+                noresfolders=noresfolders, notexfolders=notexfolders,
+                asset_type=asset_type, include_model_textures=False,
+                model_format=model_format,
+            ))
 
         # Filter out non-map keys
         ignored_keys = {'blend', 'gltf', 'mtlx', 'zip'}
@@ -242,6 +276,9 @@ class PolydownController:
         if maps:
             wanted_maps_lower = [m.lower() for m in maps]
             available_maps = [m for m in available_maps if m.lower() in wanted_maps_lower]
+
+        asset_folder = root_folder
+        if not noassetsfolders: asset_folder = os.path.join(asset_folder, asset_id)
 
         for map_name in available_maps:
             if map_name not in data:
@@ -273,7 +310,9 @@ class PolydownController:
                         filename = url.split('/')[-1]
                         
                         # Store in a subfolder structure: asset_id/size/textures to match standard behavior
-                        dest_folder = os.path.join(root_folder, asset_id, f"{asset_id}_{size}", "textures")
+                        dest_folder = asset_folder
+                        if not noresfolders: dest_folder = os.path.join(dest_folder, f"{asset_id}_{size}")
+                        if not notexfolders: dest_folder = os.path.join(dest_folder, "textures")
                         
                         tasks.append(DownloadTask(
                             url=url,
@@ -284,19 +323,20 @@ class PolydownController:
                         ))
 
         if not noimgs:
-            image_folder = os.path.join(root_folder, asset_id)
-            tasks.extend(self._get_image_tasks(asset_type, asset_id, image_folder, overwrite, tone))
+            tasks.extend(self._get_image_tasks(asset_type, asset_id, asset_folder, overwrite, tone))
             
         return tasks
 
     def _generate_model_tasks(
         self, asset_id, data, root_folder, target_sizes, overwrite, noimgs, tone,
+        noassetsfolders, noresfolders, notexfolders,
         asset_type="models", include_model_textures=True, model_format=None,
     ):
         tasks = []
         formats = model_format or ["blend"]
 
-        asset_folder = os.path.join(root_folder, asset_id)
+        asset_folder = root_folder
+        if not noassetsfolders: asset_folder = os.path.join(asset_folder, asset_id)
 
         for fmt in formats:
             fmt_data = data.get(fmt, {})
@@ -307,8 +347,10 @@ class PolydownController:
                 if target_sizes and size not in target_sizes:
                     continue
 
-                size_folder = os.path.join(asset_folder, f"{asset_id}_{size}")
-                textures_folder = os.path.join(size_folder, "textures")
+                size_folder = asset_folder
+                if not noresfolders: size_folder = os.path.join(size_folder, f"{asset_id}_{size}")
+                textures_folder = size_folder
+                if not notexfolders: textures_folder = os.path.join(textures_folder, "textures")
 
                 file_info = content.get(fmt)
                 if not file_info or 'url' not in file_info:

@@ -106,6 +106,30 @@ ap.add_argument(
     default=None,
     help="maps to download (e.g. diffuse, rough, arm, etc). If used without values, lists available common map types.",
 )
+ap.add_argument(
+    "--notexblend",
+    action="store_true",
+    default=False,
+    help="Do not download blend files for granular textures.",
+)
+ap.add_argument(
+    "--noassetsfolders",
+    action="store_true",
+    default=False,
+    help="Do not create assets subfolders.",
+)
+ap.add_argument(
+    "--noresfolders",
+    action="store_true",
+    default=False,
+    help="Do not create folders for different texture resolutions.",
+)
+ap.add_argument(
+    "--notexfolders",
+    action="store_true",
+    default=False,
+    help="Do not create \"textures\" folder.",
+)
 args = ap.parse_args()
 
 
